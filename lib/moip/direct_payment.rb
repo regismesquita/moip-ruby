@@ -27,7 +27,7 @@ module MoIP
   TipoRecebimento = %w{AVista Parcelado}
   TipoRestricao = %w{Autorizacao Pagamento}
   TipoStatus = %w{Sucesso Falha}
-  
+
   #
   TiposComInstituicao = %w{CartaoCredito CartaoCredito DebitoBancario}
 
@@ -44,7 +44,6 @@ module MoIP
 
         raise(InvalidValue, "Valor deve ser maior que zero.") if attributes[:valor].to_f <= 0.0
         raise(InvalidPhone, "Telefone deve ter o formato (99)9999-9999.") if attributes[:pagador][:tel_fixo] !~ /\(\d{2}\)?\d{4}-\d{4}/
-        raise(InvalidCellphone, "Telefone celular deve ter o formato (99)9999-9999.") if attributes[:pagador][:tel_cel] !~ /\(\d{2}\)?\d{4}-\d{4}/
 
         raise(MissingBirthdate, "É obrigatório passar as informarções do pagador") if TiposComInstituicao.include?(attributes[:forma]) && attributes[:data_nascimento].nil?
 
@@ -164,14 +163,14 @@ module MoIP
                   }
                 }
               end
-              
+
               if attributes[:url_retorno]
                 # URL de retorno
                 xml.URLRetorno {
                   xml.text attributes[:url_retorno]
                 }
               end
-                
+
             }
           }
         end
