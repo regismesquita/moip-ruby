@@ -40,12 +40,12 @@ module MoIP
         raise(MissingPayerError, "É obrigatório passar as informarções do pagador") if attributes[:pagador].nil?
 
         raise(InvalidValue, "Valor deve ser maior que zero.") if attributes[:valor].to_f <= 0.0
-        raise(InvalidPhone, "Telefone deve ter o formato (99)9999-9999.") if attributes[:pagador][:tel_fixo] !~ /(?:\(11\)9|\(\d{2}\))?\d{4}-\d{4}/
+        raise(InvalidPhone, "Telefone deve ter o formato (99)9999-9999.") if attributes[:pagador][:tel_fixo] !~ /(?:\(\d{2}\))?\d{4}-\d{4}/
+        raise(InvalidPhone, "Telefone Celular deve ter o formato (99)99999-9999 para o DDD 11.") if attributes[:pagador][:tel_cel] !~ /\(11\)9\d{4}-\d{3,4}/
 
         raise(MissingBirthdate, "É obrigatório informar a data de nascimento") if attributes[:forma] == TipoCartaoDeCredito && attributes[:data_nascimento].nil?
 
         raise(InvalidExpiry, "Data de expiração deve ter o formato 01-00 até 12-99.") if attributes[:forma] == TipoCartaoDeCredito && attributes[:expiracao] !~ /(1[0-2]|0\d)\/\d{2}/
-
 
         raise(InvalidReceiving, "Recebimento é inválido. Escolha um destes: #{TipoRecebimento.join(', ')}") if !TipoRecebimento.include?(attributes[:recebimento]) && TiposComInstituicao.include?(attributes[:forma])
 
