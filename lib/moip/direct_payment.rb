@@ -37,10 +37,9 @@ module MoIP
       # Cria uma instrução de pagamento direto
       def body(attributes = {})
         raise(MissingPaymentTypeError, "É necessário informar a razão do pagamento") if attributes[:razao].nil?
-        raise(MissingPayerError, "É obrigatório passar as informarções do pagador") if attributes[:pagador].nil?
 
         raise(InvalidValue, "Valor deve ser maior que zero.") if attributes[:valor].to_f <= 0.0
-        raise(InvalidPhone, "Telefone deve ter o formato (99)9999-9999.") if attributes[:pagador][:tel_fixo] !~ /(?:\(11\)9|\(\d{2}\))?\d{4}-\d{4}/
+        raise(InvalidPhone, "Telefone deve ter o formato (99)9999-9999.") if attributes[:pagador] && attributes[:pagador][:tel_fixo] !~ /(?:\(11\)9|\(\d{2}\))?\d{4}-\d{4}/
         # raise(InvalidPhone, "Telefone deve ter o formato (99)9999-9999.") if attributes[:pagador][:tel_fixo] !~ /(?:\(\d{2}\))?\d{4}-\d{4}/
         # raise(InvalidPhone, "Telefone Celular deve ter o formato (99)9999-9999, ou (99)99999-9999 para o DDD 11.") if attributes[:pagador][:tel_cel] !~ /\(11\)9\d{4}-\d{3,4}|\(\d{2}\)?\d{4}-\d{4}/
 
@@ -70,12 +69,25 @@ module MoIP
               xml.IdProprio {
                 xml.text attributes[:id_proprio]
               }
+              # Definindo Parcelamento
+              if attributes[:parcelamento]
+                xml.Parcelamentos {
+                  xml.Parcelamento {
+                    xml.MinimoParcelas { xml.text attributes[:parcelamento][:minimo_parcela] }
+                    xml.MaximoParcelas { xml.text attributes[:parcelamento][:maximo_parcela] }
+                    if attributes[:parcelamento][:taxa]
+                      xml.Juros { xml.text attributes[:parcelamento][:taxa] }
+                    elsif attributes[:parcelamento][:repassar]
+                      xml.Repassar { xml.text 'true' }
+                    end
+                  }
+                }
+              end
 
               # Definindo o pagamento direto
+              if attributes[:forma]
               xml.PagamentoDireto {
-                xml.Forma {
-                  xml.text attributes[:forma]
-                }
+                xml.Forma { xml.text attributes[:forma] }
 
                 # Débito Bancário
                 if ["DebitoBancario"].include?(attributes[:forma])
@@ -124,8 +136,10 @@ module MoIP
                   }
                 end
               }
+              end
 
               # Dados do pagador
+              if attributes[:pagador]
               xml.Pagador {
                 xml.Nome { xml.text attributes[:pagador][:nome] }
                 xml.LoginMoIP { xml.text attributes[:pagador][:login_moip] }
@@ -145,6 +159,7 @@ module MoIP
                   xml.TelefoneFixo { xml.text attributes[:pagador][:tel_fixo] }
                 }
               }
+              end
 
               # Boleto Bancario
               if attributes[:forma] == "BoletoBancario"
