@@ -48,7 +48,7 @@ module MoIP
       def query(token)
         full_data = peform_action!(:get, "ConsultarInstrucao/#{token}")
 
-        get_response!(full_data["ns1:ConsultarTokenResponse"]["RespostaConsultar"])
+        get_response!(full_data["ConsultarTokenResponse"]["RespostaConsultar"])
       end
 
       # Retorna a URL de acesso ao MoIP
